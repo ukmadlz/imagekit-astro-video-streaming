@@ -1,0 +1,246 @@
+---
+// src/pages/index.astro
+import Video from '../components/Video.astro';
+import VideoPlayer from '../components/VideoPlayer.astro';
+import StreamingPlayer from '../components/StreamingPlayer.astro';
+import LazyVideo from '../components/LazyVideo.astro';
+import { getVideoUrl, getThumbnailUrl } from '../lib/imagekit';
+
+const videoPath = '/example_video.mp4';
+
+// Generate URLs using ImageKit SDK
+const videoUrl = getVideoUrl(videoPath);
+const posterAt3s = getThumbnailUrl(videoPath, { second: 3 });
+const posterAt5s = getThumbnailUrl(videoPath, { second: 5 });
+const posterDefault = getThumbnailUrl(videoPath);
+const posterLazy = getThumbnailUrl(videoPath, { second: 2, width: 640, height: 360 });
+const videoResized = getVideoUrl(videoPath, { width: 320, height: 180 });
+const videoAutoFormat = getVideoUrl(videoPath, { format: 'auto' });
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro Video Demo with ImageKit</title>
+  </head>
+  <body>
+    <main>
+      <h1>Astro Video Demo with ImageKit</h1>
+      <p class="intro">
+        This demo showcases different approaches to adding video to your Astro site
+        using ImageKit for video hosting and optimization.
+      </p>
+
+      <section>
+        <h2>1. Basic HTML5 Video</h2>
+        <p>
+          The simplest approach - just a native HTML5 video element.
+          Zero JavaScript shipped to the client.
+        </p>
+        <video
+          src={videoUrl}
+          width="640"
+          height="360"
+          controls
+        >
+          Your browser does not support the video tag.
+        </video>
+      </section>
+
+      <section>
+        <h2>2. Reusable Video Component</h2>
+        <p>
+          A reusable Astro component with configurable props.
+          Still zero JavaScript - it's pre-rendered at build time.
+        </p>
+        <Video
+          src={videoUrl}
+          poster={posterAt3s}
+          width={800}
+          height={450}
+        />
+      </section>
+
+      <section>
+        <h2>3. Video.js Player</h2>
+        <p>
+          Advanced playback with Video.js - custom controls, playback speed options,
+          and more. JavaScript is only loaded when this component is used.
+        </p>
+        <VideoPlayer
+          src={videoUrl}
+          poster={posterAt5s}
+          width={800}
+          height={450}
+        />
+      </section>
+
+      <section>
+        <h2>4. Adaptive Bitrate Streaming</h2>
+        <p>
+          HLS streaming with multiple quality levels. The player automatically
+          adjusts quality based on network conditions.
+        </p>
+        <StreamingPlayer
+          src={videoUrl}
+          poster={posterDefault}
+          title="Streaming Demo"
+        />
+      </section>
+
+      <section>
+        <h2>5. Lazy Loading Video</h2>
+        <p>
+          Shows a thumbnail with a play button. The video only loads when clicked -
+          perfect for pages with multiple videos.
+        </p>
+        <LazyVideo
+          src={videoUrl}
+          poster={posterLazy}
+          width={640}
+          height={360}
+        />
+      </section>
+
+      <section>
+        <h2>6. ImageKit Transformations</h2>
+        <p>Examples of on-the-fly video transformations:</p>
+
+        <h3>Resized Video (320x180)</h3>
+        <Video
+          src={videoResized}
+          width={320}
+          height={180}
+        />
+
+        <h3>Auto Format Selection</h3>
+        <p class="note">
+          Using <code>?tr=f-auto</code> lets ImageKit choose the best format
+          (WebM for modern browsers, MP4 for others).
+        </p>
+        <Video
+          src={videoAutoFormat}
+          width={640}
+          height={360}
+        />
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Built with <a href="https://astro.build">Astro</a> and
+        <a href="https://imagekit.io">ImageKit</a>
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  :root {
+    --color-bg: #0d1117;
+    --color-text: #c9d1d9;
+    --color-heading: #f0f6fc;
+    --color-link: #58a6ff;
+    --color-border: #30363d;
+    --color-section-bg: #161b22;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+
+  body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  h1 {
+    color: var(--color-heading);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    color: var(--color-heading);
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  h3 {
+    color: var(--color-heading);
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .intro {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  section {
+    background: var(--color-section-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+
+  section p {
+    margin-bottom: 1rem;
+  }
+
+  .note {
+    font-size: 0.9rem;
+    color: #8b949e;
+  }
+
+  code {
+    background: var(--color-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  video {
+    display: block;
+    border-radius: 4px;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    color: #8b949e;
+  }
+
+  a {
+    color: var(--color-link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+</style>

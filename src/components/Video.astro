@@ -1,0 +1,48 @@
+---
+// src/components/Video.astro
+interface Props {
+  src: string;
+  width?: number;
+  height?: number;
+  poster?: string;
+  controls?: boolean;
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  width = 640,
+  height = 360,
+  poster,
+  controls = true,
+  autoplay = false,
+  muted = false,
+  loop = false,
+  class: className,
+} = Astro.props;
+---
+
+<video
+  src={src}
+  width={width}
+  height={height}
+  poster={poster}
+  controls={controls}
+  autoplay={autoplay}
+  muted={muted}
+  loop={loop}
+  playsinline
+  class={className}
+>
+  <slot>Your browser does not support the video tag.</slot>
+</video>
+
+<style>
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+// src/components/StreamingPlayer.astro
+interface Props {
+  src: string;
+  poster?: string;
+  title?: string;
+}
+
+const { src, poster, title = 'Video' } = Astro.props;
+
+// Generate HLS and DASH URLs from the source
+const hlsUrl = `${src}/ik-master.m3u8?tr=sr-240_360_480_720_1080`;
+const dashUrl = `${src}/ik-master.mpd?tr=sr-240_360_480_720_1080`;
+---
+
+<div class="streaming-player">
+  <video
+    id="streaming-video"
+    class="video-js vjs-default-skin vjs-big-play-centered"
+    controls
+    preload="auto"
+    poster={poster}
+    data-hls={hlsUrl}
+    data-dash={dashUrl}
+  >
+    <!-- HLS source (Safari native, others via Video.js) -->
+    <source src={hlsUrl} type="application/x-mpegURL" />
+    <!-- Fallback MP4 for older browsers -->
+    <source src={`${src}?tr=f-mp4`} type="video/mp4" />
+  </video>
+</div>
+
+<script>
+  import videojs from 'video.js';
+  import 'video.js/dist/video-js.css';
+
+  const videoElement = document.getElementById('streaming-video') as HTMLVideoElement;
+
+  if (videoElement) {
+    const player = videojs(videoElement, {
+      fluid: true,
+      html5: {
+        vhs: {
+          overrideNative: true, // Use Video.js HLS instead of native
+        },
+      },
+    });
+
+    // Quality selector (if you add the plugin)
+    player.on('loadedmetadata', () => {
+      console.log('Stream loaded:', player.currentSource());
+    });
+
+    document.addEventListener('astro:before-swap', () => {
+      player.dispose();
+    });
+  }
+</script>
+
+<style>
+  .streaming-player {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .video-js {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+</style>
